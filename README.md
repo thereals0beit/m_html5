@@ -19,3 +19,5 @@ I've submitted a bug report here:
 http://bugs.unrealircd.org/view.php?id=4250
 
 However, as of the first commit it has not yet been patched.
+
+Please also note that there is a ton of debugging messages in the code right now, that is because this is **not** production code. Feel free to fork it, but this code is considered buggy and unsafe as of 0.1.
