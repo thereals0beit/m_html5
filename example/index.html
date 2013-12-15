@@ -1,0 +1,99 @@
+<head>
+	<!-- css !-->
+	<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+	<link href="css/main.css" rel="stylesheet" type="text/css">
+	
+	<!-- js !-->
+	<script src="lib/jquery.min.js"></script>
+	<script src="lib/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		var g_connected = false;
+		var g_username = "s0beit";
+		var g_ws = null;
+	
+		function addToChatWindow(text) {
+			$('#chatLog').html($('#chatLog').html() + text + "<br />");
+			$('#chatLog')[0].scrollTop = $('#chatLog')[0].scrollHeight;
+		}
+		
+		function addToChatWindowUser(obj) {
+			if(g_connected == false || g_ws == null) {
+				obj.val('');
+				addToChatWindow("<font color=\"red\">You aren't connected to the server...</font>");
+			} else {
+				var textToEnter = obj.val();
+				obj.val('');
+				addToChatWindow("<b>" + g_username + "</b>: " + textToEnter);
+				
+				g_ws.send(textToEnter + "\r\n");
+			}
+		}
+	
+		$(document).ready(function() {
+			var myName = prompt("Please enter your name");
+			
+			if(myName == null) {
+				g_username = "randomName_" + Math.floor((Math.random()*9999)+1);
+			} else {
+				g_username = myName;
+			}
+			
+			addToChatWindow("Connecting to server...");
+			
+			try {
+				g_ws = new WebSocket("ws://127.0.0.1:8008/", "unrealircd");
+				
+				$(g_ws)
+					.bind('open', function() {
+						addToChatWindow("<font color=\"green\">Connection Complete!</font>");
+						g_connected = true;
+						
+						// g_ws.send("USER s0beit s0beit 127.0.0.1 :s0beit\r\nNICK s0beitVM\r\n");
+						// ^ You have to send these manually, it seems, or at least I did
+					})
+					.bind('close', function() {
+						addToChatWindow("<font color=\"red\">Connection to the server was lost!</font>");
+						g_connected = false; 
+					})
+					.bind('error', function(e) {
+						addToChatWindow("Error!");
+					})
+					.bind('message', function(e) {
+						if(e.originalEvent.data.substr(0, 6) == 'PING :') {
+							var pongStr = "PONG :" + e.originalEvent.data.substr(6); // Includes \r\n lol
+							g_ws.send(pongStr);
+							addToChatWindow("<b>Client</b>: Sent [" + pongStr + "]");
+						} else {
+							addToChatWindow("<b>Server</b>: " + e.originalEvent.data);
+						}
+					});
+			} catch(e) {
+				console.log(e);
+			}
+				
+			$(window).unload(function() {
+				g_ws.close(); g_ws = null;
+			});
+		
+			$('#chatInput').keypress(function(e) {
+				var code = e.keyCode || e.which;
+				
+				if(code == 13) {
+					addToChatWindowUser($(this));
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+
+
+	<div align="center" style="margin:0; padding:0;">
+		<font color="red">D</font>at<font color="red">C</font>hat<br /><br />
+		<div id="chatLog" class="form-control" style="margin-bottom: 10px; width: 70%; height: 700px; overflow-y: scroll; overflow-x: hidden; word-wrap: break-word; text-align: left;">
+			<b>Connecting...</b><br />
+		</div>
+		<input id="chatInput" type="text" class="form-control" style="width: 70%;" placeholder="Type to chat..." required autofocus>
+	</div>
+</body>
