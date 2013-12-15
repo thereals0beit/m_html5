@@ -1,9 +1,9 @@
 m_html5
 =======
 
-A Proof of concept module for Unreal IRCd that allows clients to connect through HTML5 WebSockets as well as normal connections
+A proof of concept module for Unreal IRCd that allows clients to connect through HTML5 WebSockets as well as normal connections
 
-IMPORTANT INFORMATION (as of v0.1)
+Important information (applies to v0.1)
 =======
 This version requires you to modify the unrealircd source code, because the hook "HOOKTYPE_RAWPACKET_IN" does not support an OUT parameter for buffer length.
 
