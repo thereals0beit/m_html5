@@ -1,0 +1,1 @@
+- Since the HTML5 handshake must come first, we currently block all outgoing packets sent before the handshake reply, I'd like to be able to add those packets to an array and send them after the handshake is completed.
